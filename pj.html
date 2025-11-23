@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+            --bg1:#0f172a;
+            --bg2:#0b1220;
+            --card:#0b1228;
+            --accent:#7c3aed;
+            --accent-2:#06b6d4;
+            --text:#e6eef8;
+            --muted:#9aa7bf;
+        }
+
+        /* global layout */
+        *, *::before, *::after { box-sizing: border-box; }
+        html,body{height:100%;margin:0;}
+        body{
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent),
+                        radial-gradient(900px 400px at 90% 90%, rgba(6,182,212,0.06), transparent),
+                        linear-gradient(180deg,var(--bg1),var(--bg2));
+            color:var(--text);
+            -webkit-font-smoothing:antialiased;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding: clamp(12px, 4vw, 48px);
+        }
+
+        /* card sizing becomes fluid for different viewports */
+        .card{
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.04);
+            padding: clamp(16px, 3vw, 36px);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+            text-align:center;
+            width: min(92%, 480px);
+            max-width: 640px;
+            color:var(--text);
+        }
+
+        /* fluid, responsive counter size */
+        #count{
+            font-weight:700;
+            font-size: clamp(32px, 6vw, 56px);
+            letter-spacing:0.5px;
+            margin:0 0 18px 0;
+            color:var(--text);
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            display:inline-block;
+            padding: clamp(10px, 2.5vw, 18px) clamp(16px, 3vw, 30px);
+            border-radius:12px;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+            min-width: 96px;
+            max-width: 100%;
+            word-break:break-word;
+        }
+
+        /* controls are flexible: wrap and grow on small screens */
+        .controls{
+            display:flex;
+            gap: clamp(8px, 1.2vw, 14px);
+            flex-wrap:wrap;
+            justify-content:center;
+            margin-top: 6px;
+        }
+
+        button{
+            appearance:none;
+            -webkit-appearance:none;
+            border:0;
+            cursor:pointer;
+            color:white;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
+            padding: clamp(8px, 1.8vw, 12px) clamp(12px, 2.8vw, 16px);
+            border-radius:10px;
+            font-weight:600;
+            transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+            box-shadow: 0
+            opacity:0.98;
+        }
+
+        button:active{
+            transform: translateY(-1px) scale(.996);
+        }
+
+        button:focus{
+            outline:2px solid rgba(124,58,237,0.18);
+            outline-offset:3px;
+        }
+
+        @media (max-width:420px){
+            #count{font-size:40px;padding:12px 20px;min-width:92px;}
+            .card{padding:18px 20px;border-radius:12px;}
+            button{padding:8px 12px;min-width:78px;}
+        }
+    </style>
+
+    <script>
+        var count = 0;
+        function updateDisplay() {
+            document.getElementById("count").textContent = count;
+        }
+        function increment() {
+            count++;
+            updateDisplay();
+        }
+        function add(n) {
+            count += n;
+            updateDisplay();
+        }
+        function resetCount() {
+            count = 0;
+            updateDisplay();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // create card container
+            var card = document.createElement("div");
+            card.className = "card";
+
+            // move existing count element into the card (if present)
+            var existingCount = document.getElementById("count");
+            if (existingCount && existingCount.parentNode) {
+                existingCount.parentNode.insertBefore(card, existingCount);
+                card.appendChild(existingCount);
+            } else {
+                card.appendChild(existingCount || document.createElement("p"));
+            }
+
+            // create controls row
+            var controls = document.createElement("div");
+            controls.className = "controls";
+
+            var existingBtn = document.querySelector('button[onclick="increment()"]');
+
+            // if there is an existing increment button, move it into controls
+            if (existingBtn && existingBtn.parentNode) {
+                // insert card where the first button was to preserve layout
+                existingBtn.parentNode.insertBefore(card, existingBtn);
+                controls.appendChild(existingBtn);
+            }
+
+            var btnAdd5 = document.createElement("button");
+            btnAdd5.textContent = "Add 5";
+            btnAdd5.addEventListener("click", function () { add(5); });
+
+            var btnSub5 = document.createElement("button");
+            btnSub5.textContent = "Subtract 5";
+            btnSub5.addEventListener("click", function () { add(-5); });
+
+            var btnReset = document.createElement("button");
+            btnReset.textContent = "Reset";
+            btnReset.addEventListener("click", resetCount);
+
+            // append our new buttons into the controls row
+            controls.appendChild(btnAdd5);
+            controls.appendChild(btnSub5);
+            controls.appendChild(btnReset);
+
+            // attach controls to the card (or body if card wasn't placed)
+            card.appendChild(controls);
+            if (!card.parentNode) {
+                document.body.appendChild(card);
+            }
+
+            // initial display
+            updateDisplay();
+        });
+    </script>
+</head> 
+<body>
+    <p id="count">0</p>
+    <button onclick="increment()">User click</button>
+</body>
+</html>
